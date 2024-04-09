@@ -1,5 +1,5 @@
 import os
-import sys
+import argparse
 from datetime import datetime
 
 
@@ -12,6 +12,10 @@ def create_file(directory: str, filename: str) -> None:
             file.write(line + "\n")
 
 
+def create_dir(dir_path: str) -> None:
+    os.makedirs(dir_path, exist_ok=True)
+
+
 def content_input() -> None:
     print("Enter content line (type 'stop' to finish):")
     while True:
@@ -22,24 +26,24 @@ def content_input() -> None:
 
 
 def main() -> None:
-    if "-d" in sys.argv and "-f" in sys.argv:
-        dir_index = sys.argv.index("-d") + 1
-        file_index = sys.argv.index("-f") + 1
-        directory = os.path.join(*sys.argv[dir_index:file_index - 1])
-        os.makedirs(directory, exist_ok=True)
-        filename = sys.argv[file_index]
-        create_file(directory, filename)
-    elif "-d" in sys.argv:
-        dir_index = sys.argv.index("-d") + 1
-        directory = os.path.join(*sys.argv[dir_index:])
-        os.makedirs(directory, exist_ok=True)
-    elif "-f" in sys.argv:
-        file_index = sys.argv.index("-f") + 1
-        filename = sys.argv[file_index]
-        create_file(".", filename)
-    else:
-        print("Invalid arguments. Use either -d or -f flag.")
-        return
+    parser = argparse.ArgumentParser(description="Create file with content")
+    parser.add_argument("-d",
+                        "--directory",
+                        help="Directory path",
+                        nargs="+",
+                        default="")
+    parser.add_argument("-f", "--filename", help="File name", default="")
+    args = parser.parse_args()
+
+    dir_paths = args.directory
+    filename = args.filename
+
+    dir_path = os.path.join(*dir_paths)
+
+    if dir_path:
+        create_dir(dir_path)
+    if filename:
+        create_file(dir_path, filename)
 
 
 if __name__ == "__main__":
